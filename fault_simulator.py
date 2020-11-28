@@ -75,32 +75,45 @@ fault_report.close()
 print (fault_coverage)
 with open('coverage_ULF2_cc.csv', 'w', newline='') as cover_table:
     csv_write = csv.writer(cover_table)
-    fp1 = "CFidUP0"
+    coupling_fault = ["CFinUP","CFinDONN","CFidUP0","CFidUP1","CFidDOWN0","CFidDOWN1","CFst0_0", "CFst1_0", "CFst0_1","CFst1_1","CFds0r0_0","CFds1r1_0","CFds0r0_1","CFds1r1_1","CFds0w0_0","CFds0w1_0","CFds1w0_0","CFds1w1_0","CFds0w0_1","CFds0w1_1","CFds1w0_1","CFds1w1_1","CFtr0_0","CFtr1_0","CFtr0_1","CFtr1_1","CFwd0_0","CFwd1_0","CFwd0_1","CFwd1_1","CFrd0_0","CFrd1_0","CFrd0_1","CFrd1_1","CFdrd0_0","CFdrd1_0","CFdrd0_1","CFdrd1_1","CFir0_0","CFir1_0","CFir0_1","CFir1_1"]
+    single_fault = ["SAFs0","SAFs1","TFs0","TFs1","WDFs0","WDFs1","RDFs0","RDFs1","IRFs0","IRFs1","DRDFs0","DRDFs1"]
+    fp1 = fault_coverage[0][0]
+    fp2 = coupling_fault[0]     #need to change for different list
+    fp2_list = coupling_fault   #need to change for different list
     temp = 0
     line = []
     line.append("FP1/FP2")
-    line.append(fp1)
-    for comb in fault_coverage[1:]:
-        if (comb[0] == "CFidUP1"):           
-            csv_write.writerow(line)
-            line.clear()
-            break
-        else:
-            line.append(comb[1])
+    line.extend(fp2_list)
+    csv_write.writerow(line)
+    line.clear()
                 
     line.append(fp1)
     for comb in fault_coverage:
-        if (comb[0] == fp1):           
-            line.append(str(comb[2])+"%"+str(comb[3]))           
+        if (comb[0] == fp1): 
+            while (comb[1] != fp2):
+                line.append("") 
+                temp = temp + 1
+                fp2 = fp2_list[temp]    
+            line.append(str(comb[2])+"%"+str(comb[3])) 
+            if (temp != len(fp2_list)-1):
+                temp = temp + 1
+                fp2 = fp2_list[temp]  
         else:           
             csv_write.writerow(line)
-            temp = temp + 1
             line.clear()
             fp1 = comb[0]
+            fp2 = fp2_list[0]
+            temp = 0
             line.append(fp1)
-            for i in range (temp):
-                line.append("")
+            while (comb[1] != fp2):
+                line.append("") 
+                temp = temp + 1
+                fp2 = fp2_list[temp]    
             line.append(str(comb[2])+"%"+str(comb[3]))
+            if (temp != len(fp2_list)-1):
+                temp = temp + 1
+                fp2 = fp2_list[temp] 
+    csv_write.writerow(line)
 
     
         
