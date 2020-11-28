@@ -13,39 +13,51 @@ for i in range(4):
 print("Initial Memory : ",memory)
 i_m=memory.copy()
 
-#import csv
-#csv_file=csv.reader(open(r'fault_list_single.csv','r'))
-#fault_list = []
-#for line in csv_file:
-#    fault_list.append(line[0:10])
-    
-fault_list = ['CFrd', '0_0', '0', '0', 'NA', '1', '0', 'r0', '1', '1'], ['CFrd', '0_0', '0', '0', 'NA', '2', '0', 'r0', '1', '1']
-print(fault_list)
+import csv
+csv_file=csv.reader(open(r'fault_list_ULF2_ss.csv','r'))
+fault_list = []
+temp = []
+for line in csv_file:
+    temp.append(line)
+for i in range(1, len(temp), 2):
+    fault_list.append([temp[i], temp[i+1]])
+
+#fault_list = [[['TFs', '0', '0', '1', 'w0', '1', 'NA', 'NA', '0','0'], ['SAFs',	'0', '0', 'NA',	'w1', '0', 'NA', 'NA', '0', '0']]]
+#fault_list = fault_list[0:5]
+
+fault_report = open('fault_report.txt', 'w')  
 filereader = open('march_test.txt', 'r')
 f=filereader.readlines()
 for (line_num,line) in enumerate(f):
-    current_type = ''
-    current_subtype = ''
+    current_type1 = ''
+    current_subtype1 = ''
+    current_type2 = ''
+    current_subtype2 = ''
     count = 1
     f_count = 0
     f_count_p = 0
     for fault in fault_list:
-        fault[2] = int(fault[2])
-        fault[5] = int(fault[5])
+        fault[0][2] = int(fault[0][2])
+        fault[0][5] = int(fault[0][5])
+        fault[1][2] = int(fault[1][2])
+        fault[1][5] = int(fault[1][5])
         print("fault is now", fault)
         memory = i_m.copy()
         march_line = line.strip().split(",")
-        if ((fault[0] != current_type) or (fault[1] != current_subtype)):
-            if (current_type != ''):
-                print("============fault coverage for subtype", current_type, current_subtype, "is", f_count, "/", count, "============")
+        if ((fault[0][0] != current_type1) or (fault[0][1] != current_subtype1) or (fault[1][0] != current_type2) or (fault[1][1] != current_subtype2)):
+            if (current_type1 != ''):
+                print("============fault coverage for subtype", current_type1, current_subtype1, " ", current_type2, current_subtype2, "is", f_count, "/", count, "============")
+                fault_report.write("============fault coverage for subtype" + current_type1 + current_subtype1 + " " + current_type2 + current_subtype2 + "is" + str(f_count) + "/" + str(count) + "============\n")
             count = 1
             f_count = 0
             f_count_p = 0
-            current_type = fault[0]
-            current_subtype = fault[1]
+            current_type1 = fault[0][0]
+            current_subtype1 = fault[0][1]
+            current_type2 = fault[1][0]
+            current_subtype2 = fault[1][1]
         else:
             count = count + 1
-        print("------------------ fault introduced: ", fault[0], fault[1], "------------------")
+        print("------------------ fault introduced: ", fault[0][0], fault[0][1], " and ", fault[1][0], fault[1][1], "------------------")
         for march_element in march_line:
             print("march element is : ", march_element)
             f_count = March_test(march_element,memory,fault,line_num, f_count)
@@ -54,9 +66,9 @@ for (line_num,line) in enumerate(f):
                 break
             print("memory is now: ", memory)
         if (fault == fault_list[-1]):       #print fault coverage for last fault in the list 
-            print("============fault coverage for subtype", current_type, current_subtype, "is", f_count, "/", count, "============")
-            
-
+            print("============fault coverage for subtype", current_type1, current_subtype1, " ", current_type2, current_subtype2, "is", f_count, "/", count, "============")
+            fault_report.write("============fault coverage for subtype" + current_type1 + current_subtype1 + " " + current_type2 + current_subtype2 + "is" + str(f_count) + "/" + str(count) + "============\n")
+fault_report.close()
     
         
 
