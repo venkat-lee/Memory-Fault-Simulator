@@ -14,7 +14,7 @@ print("Initial Memory : ",memory)
 i_m=memory.copy()
 
 import csv
-csv_file=csv.reader(open(r'fault_list_ULF2_ss.csv','r'))
+csv_file=csv.reader(open(r'fault_list_ULF2_cc.csv','r'))
 fault_list = []
 temp = []
 for line in csv_file:
@@ -26,6 +26,7 @@ for i in range(1, len(temp), 2):
 #fault_list = fault_list[0:5]
 
 fault_report = open('fault_report.txt', 'w')  
+fault_coverage = []
 filereader = open('march_test.txt', 'r')
 f=filereader.readlines()
 for (line_num,line) in enumerate(f):
@@ -48,6 +49,7 @@ for (line_num,line) in enumerate(f):
             if (current_type1 != ''):
                 print("============fault coverage for subtype", current_type1, current_subtype1, " ", current_type2, current_subtype2, "is", f_count, "/", count, "============")
                 fault_report.write("============fault coverage for subtype" + current_type1 + current_subtype1 + " " + current_type2 + current_subtype2 + "is" + str(f_count) + "/" + str(count) + "============\n")
+                fault_coverage.append([current_type1 + current_subtype1, current_type2 + current_subtype2, f_count, count])
             count = 1
             f_count = 0
             f_count_p = 0
@@ -68,7 +70,38 @@ for (line_num,line) in enumerate(f):
         if (fault == fault_list[-1]):       #print fault coverage for last fault in the list 
             print("============fault coverage for subtype", current_type1, current_subtype1, " ", current_type2, current_subtype2, "is", f_count, "/", count, "============")
             fault_report.write("============fault coverage for subtype" + current_type1 + current_subtype1 + " " + current_type2 + current_subtype2 + "is" + str(f_count) + "/" + str(count) + "============\n")
+            fault_coverage.append([current_type1 + current_subtype1, current_type2 + current_subtype2, f_count, count])
 fault_report.close()
+print (fault_coverage)
+with open('coverage_ULF2_cc.csv', 'w', newline='') as cover_table:
+    csv_write = csv.writer(cover_table)
+    fp1 = "CFidUP0"
+    temp = 0
+    line = []
+    line.append("FP1/FP2")
+    line.append(fp1)
+    for comb in fault_coverage[1:]:
+        if (comb[0] == "CFidUP1"):           
+            csv_write.writerow(line)
+            line.clear()
+            break
+        else:
+            line.append(comb[1])
+                
+    line.append(fp1)
+    for comb in fault_coverage:
+        if (comb[0] == fp1):           
+            line.append(str(comb[2])+"%"+str(comb[3]))           
+        else:           
+            csv_write.writerow(line)
+            temp = temp + 1
+            line.clear()
+            fp1 = comb[0]
+            line.append(fp1)
+            for i in range (temp):
+                line.append("")
+            line.append(str(comb[2])+"%"+str(comb[3]))
+
     
         
 
