@@ -192,11 +192,13 @@ def fault_pair_analysis(fp1, fp2, counter):
     print ("\t\t not masked:" + str(not_mask) + "\n\t\t linked:" + str(mask))
     return link_condition
 
-
+head = [ "fault_type", "sub_type", "aggr_addr", "aggr_val", "aggr_op", "vic_addr", "vic_val", "vic_op",
+        "final_vic_val", "read_vic_val", "Fault_ID"]
 all_fault = data[1::]
 analysis_dict = {}
 with open('long_list.csv', 'w', newline='') as long_list:
     csv_write = csv.writer(long_list)
+    csv_write.writerow(head)
     counter = [0,0]
     for i in combinations_with_replacement(list(range(len(all_fault))), 2):
         fp1 = all_fault[i[0]][0] + all_fault[i[0]][1]
